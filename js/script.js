@@ -17,29 +17,35 @@
                     c2: 3,
                 }
             },
-        }
+        },
+        name: 'John',
     };
     
     const deepFreeze = function(obj) {
+        const allProps = Object.getOwnPropertyNames(obj);
 
-        const propKeys = Object.getOwnPropertyNames(obj);
-        
-        propKeys.forEach( key => {
-            const prop = obj[key];
-            if(typeof prop === 'object' && prop !== null) {
+        for (const keyName in obj) {
+            let prop = obj[keyName];
+            if(typeof prop === 'object') {
                 deepFreeze(prop);
-            };
-        });
-        
-        return Object.freeze(obj);
+            }
+        }
+
+        for(const prop of allProps) {
+            Object.defineProperty(obj, prop, {
+                writable: false,
+                enumerable: false,
+                configurable: false
+            });
+        }
     }
 
     console.log (user.data.d.d1.c2); // 3
     user.data.d.d1.c2 = 134;
     console.log (user.data.d.d1.c2); // 134
-
+    
     deepFreeze(user);
-
+    
     user.data.d.d1.c2 = 3; // TypeError
     console.log (user.data.d.d1.c2);
 
